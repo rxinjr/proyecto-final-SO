@@ -1,0 +1,19 @@
+# PARTE 3 - Grafana
+services:
+  grafana:
+    image: grafana/grafana:${GRAFANA_TAG:-12.4.0}
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      # Solo para el laboratorio local: entra sin usuario y con rol Admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      # La fuente de datos Prometheus queda creada desde el arranque
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - proyecto_red

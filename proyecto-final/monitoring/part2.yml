@@ -1,0 +1,23 @@
+# PARTE 2 - Exporter de Nginx + Prometheus
+# (los backends ya exponen /metrics por si solos; no necesitan servicio nuevo)
+services:
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:${NGINX_EXPORTER_TAG:-1.4.2}
+    command:
+      - "--nginx.scrape-uri=http://nginx:8088/stub_status"
+    depends_on:
+      - nginx
+    networks:
+      - proyecto_red
+
+  prometheus:
+    image: prom/prometheus:${PROMETHEUS_TAG:-v3.13.5}
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      - nginx-exporter
+    networks:
+      - proyecto_red

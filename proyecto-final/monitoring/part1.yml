@@ -1,0 +1,17 @@
+# PARTE 1 - cAdvisor: mide CPU, memoria y red de cada contenedor
+services:
+  cadvisor:
+    image: ghcr.io/google/cadvisor:${CADVISOR_TAG:-0.56.2}
+    command:
+      - "--housekeeping_interval=5s"   # refresca cada 5 s (igual que Prometheus)
+      - "--docker_only=true"           # solo contenedores Docker, menos ruido
+    ports:
+      - "${CADVISOR_PORT:-8081}:8080"                  # 8080 ya lo usa Nginx
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    privileged: true
+    networks:
+      - proyecto_red
